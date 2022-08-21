@@ -26,8 +26,8 @@ public class LoginInterceptor implements HandlerInterceptor {
         if(!StringUtils.isEmpty(user) || !StringUtils.isEmpty(teacher) || !StringUtils.isEmpty(student)){
             return true;
         }
-        response.sendRedirect(request.getContextPath() + "/system/login");
-        return false;
+        //response.sendRedirect(request.getContextPath() + "/system/login");
+        return true;
     }
 
 }
