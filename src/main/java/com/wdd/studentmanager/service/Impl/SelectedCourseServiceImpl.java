@@ -1,15 +1,19 @@
 package com.wdd.studentmanager.service.Impl;
 
+import com.wdd.studentmanager.domain.Course;
 import com.wdd.studentmanager.domain.SelectedCourse;
 import com.wdd.studentmanager.mapper.CourseMapper;
 import com.wdd.studentmanager.mapper.SelectedCourseMapper;
 import com.wdd.studentmanager.service.SelectedCourseService;
 import com.wdd.studentmanager.util.PageBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -22,6 +26,7 @@ import java.util.Map;
 @Service
 public  class SelectedCourseServiceImpl implements SelectedCourseService {
 
+    @Autowired RedisTemplate redisTemplate;
     @Autowired
     private SelectedCourseMapper selectedCourseMapper;
     @Autowired
@@ -44,11 +49,35 @@ public  class SelectedCourseServiceImpl implements SelectedCourseService {
     @Override
     @Transactional
     public int  addSelectedCourse(SelectedCourse selectedCourse) {
+        //1.先在redis里面查找是否有course信息，如果有且选课人数已经超标，则返回2，未超标则继续
+        int id = selectedCourse.getCourseId();
+        List<Integer> courseIdList = new ArrayList<>();
+        courseIdList.add(id);
+        List<Course> courseById = courseMapper.getCourseById(courseIdList);
+        if(courseById.size() == 0){
+            return 3;
+        }
+
+        Course course = courseById.get(0);
+        System.out.println(course);
+        String selectNumKey = "course:id:" + String.valueOf(courseById.get(0).getId())+"selectedNum";
+
+        if(redisTemplate.hasKey(selectNumKey)){
+            int num = (int) redisTemplate.opsForValue().get(selectNumKey);
+            if(num >= 50){
+                return 2;
+            }
+        }
+
         SelectedCourse s = selectedCourseMapper.findBySelectedCourse(selectedCourse);
         if(StringUtils.isEmpty(s)){
             int count = courseMapper.addStudentNum(selectedCourse.getCourseId());
+
             if(count == 1){
                 selectedCourseMapper.addSelectedCourse(selectedCourse);
+                //将该信息写入redis中
+                redisTemplate.opsForValue().setIfAbsent(selectNumKey, course.getSelectedNum());
+                redisTemplate.opsForValue().increment(selectNumKey,1);
                 return count;
             }
             if(count == 0){

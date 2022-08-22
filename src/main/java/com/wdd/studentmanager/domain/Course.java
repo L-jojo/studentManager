@@ -10,9 +10,9 @@ public class Course {
     private int id;
     private String name;
     private int teacherId;
-    private String courseDate;
-    private int selectedNum = 0;//已选人数
-    private int maxNum = 50;//课程最大选课人数
+    private String course_Date;
+    private int selected_Num;//已选人数
+    private int max_Num = 50;//课程最大选课人数
     private String info;
 
     public int getId() {
@@ -40,27 +40,27 @@ public class Course {
     }
 
     public String getCourseDate() {
-        return courseDate;
+        return course_Date;
     }
 
     public void setCourseDate(String courseDate) {
-        this.courseDate = courseDate;
+        this.course_Date = courseDate;
     }
 
     public int getSelectedNum() {
-        return selectedNum;
+        return selected_Num;
     }
 
     public void setSelectedNum(int selectedNum) {
-        this.selectedNum = selectedNum;
+        this.selected_Num = selectedNum;
     }
 
     public int getMaxNum() {
-        return maxNum;
+        return max_Num;
     }
 
     public void setMaxNum(int maxNum) {
-        this.maxNum = maxNum;
+        this.max_Num = maxNum;
     }
 
     public String getInfo() {
@@ -69,5 +69,18 @@ public class Course {
 
     public void setInfo(String info) {
         this.info = info;
+    }
+
+    @Override
+    public String toString() {
+        return "Course{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", teacherId=" + teacherId +
+                ", courseDate='" + course_Date + '\'' +
+                ", selectedNum=" + selected_Num +
+                ", maxNum=" + max_Num +
+                ", info='" + info + '\'' +
+                '}';
     }
 }
